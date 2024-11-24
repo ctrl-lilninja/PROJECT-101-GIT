@@ -1,4 +1,6 @@
-<x-guest-layout>
+@extends('layouts.app')
+
+@section('content')
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -49,4 +51,4 @@
             <p>Don't have an account?</p>
             <a href="{{ route('register') }}" class="text-blue-500 underline">Register here</a>
         </div>
-</x-guest-layout>
+@endsection
