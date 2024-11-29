@@ -4,28 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::all(); // Get all categories from the database
         return view('categories.index', compact('categories'));
-    }
-
-    public function create()
-    {
-        return view('categories.create');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-        ]);
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validate image type and size
+    ]);
 
-        Category::create($request->all());
-        return redirect()->route('categories.index')->with('success', 'Category added successfully.');
+    $category = new Category();
+    $category->name = $request->name;
+
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imageName = Str::slug($request->name) . '.' . $image->getClientOriginalExtension();
+        
+        // Store the image in the 'public/categories' directory
+        $image->storeAs('categories', $imageName, 'public');
+
+        // Save the image path in the database (to the image column)
+        $category->image = $imageName;
+    }
+
+    $category->save();
+
+    return redirect()->route('categories.index')->with('success', 'Category created successfully!');
+    }
+
+    public function show(Category $category)
+    {
+        // Fetch all bikes for this specific category using the relationship defined in the Category model
+        $bikes = $category->bikes; // This ensures it fetches only the bikes that belong to this category
+
+        // Return the category view with bikes
+        return view('categories.show', compact('category', 'bikes'));
+    }
+    
+    public function create()
+    {
+        return view('categories.create');
     }
 
     public function edit(Category $category)
@@ -36,16 +62,17 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'name' => 'required|string|max:255',
         ]);
 
-        $category->update($request->all());
-        return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
+        $category->update($request->only('name')); // Update category
+
+        return redirect()->route('categories.index');
     }
 
     public function destroy(Category $category)
     {
-        $category->delete();
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
+        $category->delete(); // Delete category
+        return redirect()->route('categories.index');
     }
 }
