@@ -37,12 +37,13 @@
             </div>
 
             <div class="mb-4">
-                <label for="barcode" class="block text-sm font-medium text-gray-700">Barcode</label>
-                <input type="text" name="barcode" id="barcode" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <label for="photo" class="block text-sm font-medium text-gray-700">Bike Photo</label>
+                <input type="file" name="photo" id="photo" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
-            <div class="mb-4 text-center">
-                <button type="button" id="generate-barcode" class="bg-green-500 text-white px-4 py-2 rounded-md text-sm">Generate Barcode</button>
+            <div class="mb-4">
+                <label for="barcode" class="block text-sm font-medium text-gray-700">Barcode</label>
+                <input type="text" name="barcode" id="barcode" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Scan or Enter Barcode" required>
             </div>
 
             <div class="mb-4 text-center">
@@ -51,22 +52,16 @@
         </form>
     </div>
 
-    @section('scripts')
-    <script>
-        // You can use a library for barcode generation (e.g., JsBarcode)
-        document.getElementById('generate-barcode').addEventListener('click', function () {
-            var barcodeValue = document.getElementById('barcode').value;
-
-            // Use JsBarcode or other barcode libraries for generation
-            if (barcodeValue) {
-                JsBarcode("#barcode", barcodeValue, {
-                    format: "CODE128",
-                    displayValue: true
-                });
-            } else {
-                alert('Please enter a value for the barcode!');
-            }
-        });
-    </script>
-    @endsection
+    @push('scripts')
+        <script>
+            document.getElementById('barcode').addEventListener('input', function(event) {
+                const barcodeInput = event.target;
+                const barcode = barcodeInput.value.trim();
+                if (barcode.length >= 13) {  // Assuming barcode length is 13 digits
+                    // Auto-submit the form once barcode is detected
+                    document.querySelector('form').submit();
+                }
+            });
+        </script>
+    @endpush
 @endsection

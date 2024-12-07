@@ -1,335 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Bike Inventory') }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{{ config('app.name', 'Laravel') }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        /* General Styles */
-        body {
-            background-color: #f7fafc;
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #2d3748;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Navbar Styles - Sticky Navbar */
-        nav {
-            background-color: #4c51bf;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            width: 100%;
-            padding: 0.75rem 2rem;
-            transition: background-color 0.3s;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-size: 1.25rem;
-        }
-
-        nav a:hover {
-            color: #cbd5e0;
-        }
-
-        nav .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Hamburger Icon */
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 30px;
-            height: 25px;
-            cursor: pointer;
-        }
-
-        .hamburger div {
-            height: 5px;
-            background-color: white;
-            border-radius: 5px;
-        }
-
-        /* Menu Dropdown for Mobile */
-        .menu {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .menu a {
-            color: white;
-            font-size: 1.1rem;
-            text-decoration: none;
-            padding: 10px;
-        }
-
-        .menu a:hover {
-            background-color: #edf2f7;
-            color: #4c51bf;
-            border-radius: 5px;
-        }
-
-        .dropdown-menu {
-            display: none;
-            flex-direction: column;
-            gap: 1rem;
-            position: absolute;
-            background-color: #4c51bf;
-            top: 50px;
-            right: 20px;
-            border-radius: 8px;
-            padding: 10px;
-            z-index: 100;
-        }
-
-        .dropdown-menu a {
-            color: white;
-            font-size: 1.1rem;
-            padding: 10px;
-            text-decoration: none;
-        }
-
-        .dropdown-menu a:hover {
-            background-color: #edf2f7;
-            color: #4c51bf;
-            border-radius: 5px;
-        }
-
-        /* Mobile Styles */
-        @media screen and (max-width: 768px) {
-            .menu {
-                display: none;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            .dropdown-menu {
-                top: 40px;
-                left: 20px;
-            }
-        }
-
-        /* Footer Styles */
-        footer {
-            background-color: #4c51bf;
-            color: white;
-            text-align: center;
-            font-size: 0.875rem;
-            padding: 1rem 0;
-            width: 100%;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            z-index: 50;
-        }
-
-        footer p {
-            margin: 0;
-        }
-
-        /* Content Section */
-        main {
-            flex: 1;
-            padding: 2rem 0;
-            padding-bottom: 5rem;
-        }
-
-        /* Footer Visibility on Scroll */
-        footer.hidden {
-            display: none;
-        }
-
-        /* Ensure Logout button is styled */
-        form button {
-            background-color: transparent;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        form button:hover {
-            background-color: #edf2f7;
-            color: #4c51bf;
-            border-radius: 5px;
-        }
-
-        /* Category Card Styles */
-        .bg-white {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .bg-blue-500 {
-            background-color: #4299e1;
-        }
-
-        .bg-red-500 {
-            background-color: #f56565;
-        }
-
-        .text-white {
-            color: white;
-        }
-
-        .text-gray-700 {
-            color: #4a5568;
-        }
-
-        .text-gray-800 {
-            color: #2d3748;
-        }
-
-        .text-gray-500 {
-            color: #a0aec0;
-        }
-
-        .text-lg {
-            font-size: 1.125rem;
-        }
-
-        .text-xl {
-            font-size: 1.25rem;
-        }
-
-        .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-        .py-2 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
-
-        .rounded-md {
-            border-radius: 0.375rem;
-        }
-
-        .inline-block {
-            display: inline-block;
-        }
-
-        .mt-4 {
-            margin-top: 1rem;
-        }
-
-        .mb-4 {
-            margin-bottom: 1rem;
-        }
-
-        /* Modal Styles */
-        #deleteModal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .bg-white {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-    </style>
 </head>
-<body>
+<body class="font-sans antialiased bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-screen">
+        <!-- Navigation Bar -->
+        <nav x-data="{ open: false }" class="bg-indigo-600 dark:bg-indigo-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex">
+                        <!-- Logo -->
+                        <div class="shrink-0 flex items-center">
+                            <a href="{{ route('dashboard') }}">
+                                <x-application-logo class="block h-9 w-auto fill-current text-white" />
+                            </a>
+                        </div>
 
-    <!-- Navbar -->
-    <nav>
-        <div class="container">
-            <a href="{{ route('dashboard') }}" class="text-2xl font-semibold">
-                🚴‍♂️ Bike Inventory
-            </a>
+                        <!-- Navigation Links -->
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
 
-            <div class="hamburger" id="hamburger" onclick="toggleMenu()">
-                <div></div>
-                <div></div>
-                <div></div>
+                            <x-nav-link :href="route('bikes.index')" :active="request()->routeIs('bikes.index')">
+                                {{ __('Bikes') }}
+                            </x-nav-link>
+
+                            <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.index')">
+                                {{ __('Categories') }}
+                            </x-nav-link>
+
+                            <x-nav-link :href="route('sell.index')" :active="request()->routeIs('sell')">
+                                {{ __('Sell') }}
+                            </x-nav-link>
+
+                            <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
+                                {{ __('Profile') }}
+                            </x-nav-link>
+                        </div>
+                    </div>
+
+                    <!-- Settings Dropdown -->
+                    <div class="hidden sm:flex sm:items-center sm:ms-6">
+                        <x-dropdown align="right" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-200 dark:text-gray-400 bg-indigo-600 dark:bg-indigo-800 hover:text-gray-100 dark:hover:text-gray-200 focus:outline-none transition ease-in-out duration-150">
+                                    <div>{{ Auth::user()->name }}</div>
+
+                                    <div class="ms-1">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('profile.edit')">
+                                    {{ __('Profile') }}
+                                </x-dropdown-link>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+
+                                    <x-dropdown-link :href="route('logout')"
+                                            onclick="event.preventDefault();
+                                                        this.closest('form').submit();">
+                                        {{ __('Log Out') }}
+                                    </x-dropdown-link>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
+
+                    <!-- Hamburger -->
+                    <div class="-me-2 flex items-center sm:hidden">
+                        <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-gray-300 dark:hover:text-gray-100 hover:bg-indigo-500 dark:hover:bg-indigo-700 focus:outline-none focus:bg-indigo-500 dark:focus:bg-indigo-700 transition duration-150 ease-in-out">
+                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div class="menu" id="menu">
-                <a href="{{ route('bikes.index') }}">Bikes</a>
-                <a href="{{ route('categories.index') }}">Categories</a> <!-- Only link to categories page -->
-                <a href="{{ route('profile.edit') }}">Profile</a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        Logout
-                    </button>
-                </form>
+            <!-- Responsive Navigation Menu -->
+            <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+                <div class="pt-2 pb-3 space-y-1">
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('bikes.index')" :active="request()->routeIs('bikes.index')">
+                        {{ __('Bikes') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.index')">
+                        {{ __('Categories') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('sell.index')" :active="request()->routeIs('sell')">
+                        {{ __('Sell') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
+                        {{ __('Profile') }}
+                    </x-responsive-nav-link>
+                </div>
+
+                <!-- Responsive Settings Options -->
+                <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+                    <div class="px-4">
+                        <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
+                        <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    </div>
+
+                    <div class="mt-3 space-y-1">
+                        <x-responsive-nav-link :href="route('profile.edit')">
+                            {{ __('Profile') }}
+                        </x-responsive-nav-link>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+
+                            <x-responsive-nav-link :href="route('logout')"
+                                    onclick="event.preventDefault();
+                                                this.closest('form').submit();">
+                                {{ __('Log Out') }}
+                            </x-responsive-nav-link>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </div>
+        </nav>
 
-        <div class="dropdown-menu" id="dropdown-menu">
-            <a href="{{ route('bikes.index') }}">Bikes</a>
-            <a href="{{ route('categories.index') }}">Categories</a>  <!-- Only link to categories page -->
-            <a href="{{ route('profile.edit') }}">Profile</a>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    Logout
-                </button>
-            </form>
-        </div>
-    </nav>
+        <!-- Page Heading -->
+        @isset($header)
+            <header class="bg-white dark:bg-gray-800 shadow">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    {{ $header }}
+                </div>
+            </header>
+        @endisset
 
-    <!-- Main Content -->
-    <main>
-        <div class="bg-white p-6">
+        <!-- Page Content -->
+        <main>
             @yield('content')
-        </div>
-    </main>
-
-    <footer id="footer">
-        <p>&copy; {{ date('Y') }} Bike Inventory. All rights reserved.</p>
-    </footer>
-
-    <script>
-        function toggleMenu() {
-            const dropdownMenu = document.getElementById('dropdown-menu');
-            const menu = document.getElementById('menu');
-
-            if (dropdownMenu.style.display === "none" || dropdownMenu.style.display === "") {
-                dropdownMenu.style.display = "flex";
-                menu.style.display = "none";
-            } else {
-                dropdownMenu.style.display = "none";
-                menu.style.display = "flex";
-            }
-        }
-
-        window.addEventListener('scroll', function() {
-            const footer = document.getElementById('footer');
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                footer.classList.remove('hidden');
-            } else {
-                footer.classList.add('hidden');
-            }
-        });
-    </script>
-
+        </main>
+    </div>
 </body>
 </html>

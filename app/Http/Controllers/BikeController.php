@@ -29,20 +29,41 @@ class BikeController extends Controller
         return view('bikes.create', compact('categories'));
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'model' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'quantity' => 'required|integer',
-            'price' => 'required|numeric',
-        ]);
+    // Store method in BikeController
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'model' => 'required|string|max:255',
+        'category_id' => 'required|exists:categories,id',
+        'quantity' => 'required|integer',
+        'price' => 'required|numeric',
+        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validation for photo
+    ]);
 
-        Bike::create($request->all()); // Insert bike
+    // Handle file upload
+   // Handle file upload
+$photoPath = null;
+if ($request->hasFile('photo')) {
+    $photo = $request->file('photo');
+    $photoPath = $photo->store('photos', 'public'); // Store in storage/app/public/photos
+}
 
-        return redirect()->route('bikes.index');
-    }
+// Create a new bike and store the photo path
+Bike::create([
+    'name' => $request->name,
+    'model' => $request->model,
+    'category_id' => $request->category_id,
+    'quantity' => $request->quantity,
+    'price' => $request->price,
+    'barcode' => $request->barcode,
+    'photo' => $photoPath, // Save the photo path to the database
+]);
+
+
+    return redirect()->route('bikes.index');
+}
+
 
     public function edit(Bike $bike)
     {
@@ -52,22 +73,48 @@ class BikeController extends Controller
 
     public function update(Request $request, Bike $bike)
     {
+        // Validate the form input
         $request->validate([
             'name' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'quantity' => 'required|integer',
             'price' => 'required|numeric',
+            'barcode' => 'nullable|string|max:255', // Barcode validation
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validation for photo
         ]);
-
-        $bike->update($request->all()); // Update bike
-
+    
+        // Handle file upload for new photo
+        if ($request->hasFile('photo')) {
+            // Delete the old photo if it exists
+            if ($bike->photo && file_exists(storage_path('app/public/' . $bike->photo))) {
+                unlink(storage_path('app/public/' . $bike->photo)); // Delete the old photo
+            }
+    
+            // Store the new photo
+            $photo = $request->file('photo');
+            $photoPath = $photo->store('photos', 'public'); // Store in storage/app/public/photos
+            $bike->photo = $photoPath; // Assign the new photo path to the bike
+        }
+    
+        // Update the bike information
+        $bike->name = $request->name;
+        $bike->model = $request->model;
+        $bike->category_id = $request->category_id;
+        $bike->quantity = $request->quantity;
+        $bike->price = $request->price;
+        $bike->barcode = $request->barcode; // Update barcode explicitly
+        $bike->save(); // Save the updated bike
+    
         return redirect()->route('bikes.index');
     }
+    
 
     public function destroy(Bike $bike)
     {
-        $bike->delete(); // Delete bike
+        // Delete the bike
+        $bike->delete();
         return redirect()->route('bikes.index');
     }
+    
 }
