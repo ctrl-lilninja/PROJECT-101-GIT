@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\SoldBike;
@@ -6,16 +7,19 @@ use Illuminate\Http\Request;
 
 class SoldBikeController extends Controller
 {
+    // Display a listing of the sold bikes
     public function index()
     {
-        // Get all sold bikes and pass to the view
-        $soldBikes = SoldBike::with('bike', 'sale')->get();
+        // Eager load the 'bike' relationship for each soldBike
+        $soldBikes = SoldBike::with('bike')->get();
+        
+        // Pass the data to the Blade view
         return view('sold_bikes.index', compact('soldBikes'));
     }
 
+    // Store a new sold bike record
     public function store(Request $request)
     {
-        // Store sold bike record
         $request->validate([
             'bike_id' => 'required|exists:bikes,id',
             'sale_id' => 'required|exists:sales,id',
@@ -30,8 +34,12 @@ class SoldBikeController extends Controller
 
         return redirect()->route('sold_bikes.index');
     }
-    public function bike()
+
+    // Show details of a specific sold bike
+    public function show($id)
     {
-        return $this->belongsTo(Bike::class);
+        // Retrieve the sold bike with the related bike and sale
+        $soldBike = SoldBike::with('bike', 'sale')->findOrFail($id);
+        return view('sold_bikes.show', compact('soldBike'));  // Pass the sold bike to the view
     }
 }

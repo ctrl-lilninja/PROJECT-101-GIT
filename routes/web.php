@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
 
     // Sell Management Routes
     Route::resource('sell', SellController::class);
+    Route::resource('sold_bikes', \App\Http\Controllers\SoldBikeController::class);
 
     // Barcode Search Route for Sell
     Route::get('/api/sell/barcode/{barcode}', [SellController::class, 'getBikeByBarcode']);

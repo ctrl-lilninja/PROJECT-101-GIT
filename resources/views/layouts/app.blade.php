@@ -46,6 +46,10 @@
                                 {{ __('Sell') }}
                             </x-nav-link>
 
+                            <x-nav-link :href="route('sold_bikes.index')" :active="request()->routeIs('sold_bikes.index')">
+                                {{ __('Sales') }}
+                            </x-nav-link>
+
                             <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
                                 {{ __('Profile') }}
                             </x-nav-link>
