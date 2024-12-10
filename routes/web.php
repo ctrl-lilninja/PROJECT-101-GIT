@@ -1,4 +1,9 @@
-<?PHP
+<?PHp
+
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BikeController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SellController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
