@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-semibold mb-6 text-center">Bike Sales</h1>
 
         <!-- Sale Form -->
-        <form action="{{ route('sell.store') }}" method="POST">
+        <form action="{{ route('sell.store') }}" method="POST" id="sale_form">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -42,7 +42,7 @@
                                 <select name="bikes[0][bike_id]" class="p-3 border rounded-lg w-full bike-name" required>
                                     <option value="">Select a bike</option>
                                     @foreach($bikes as $bike)
-                                        <option value="{{ $bike->id }}" data-barcode="{{ $bike->barcode }}" data-price="{{ $bike->price }}">{{ $bike->name }}</option>
+                                        <option value="{{ $bike->id }}" data-barcode="{{ $bike->barcode }}" data-price="{{ $bike->price }}" data-stock="{{ $bike->stock }}">{{ $bike->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -56,6 +56,9 @@
                                 <label for="quantity" class="block text-sm font-semibold text-gray-700">Quantity</label>
                                 <input type="number" name="bikes[0][quantity]" class="p-3 border rounded-lg w-full bike-quantity" min="1" value="1" required>
                             </div>
+
+                            <!-- Delete Button -->
+                            <button type="button" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 delete-bike">Delete Bike</button>
                         </div>
                     </div>
 
@@ -69,7 +72,7 @@
                 <input type="number" id="total_amount" name="total_amount" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-blue-500" readonly>
             </div>
 
-            <button type="submit" class="bg-red-600 text-white font-semibold text-lg px-6 py-3 rounded-lg shadow-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 transition duration-300 w-full sm:w-auto">Submit Sale</button>
+            <button type="submit" class="bg-red-600 text-white font-semibold text-lg py-3 px-6 rounded-lg w-full hover:bg-red-700">Submit Sale</button>
         </form>
     </div>
 </div>
@@ -124,29 +127,35 @@
     function handleDropdownChange(event) {
         const bikeDropdown = event.target;
         const bikePriceInput = bikeDropdown.closest('.bike_entry').querySelector('.bike-price');
+        const quantityInput = bikeDropdown.closest('.bike_entry').querySelector('.bike-quantity');
+        const availableStock = parseInt(bikeDropdown.selectedOptions[0].dataset.stock);
 
-        const selectedOption = bikeDropdown.selectedOptions[0];
-        if (selectedOption) {
-            const price = selectedOption.dataset.price;
-            bikePriceInput.value = price;
+        // Set price from dropdown selection
+        const price = bikeDropdown.selectedOptions[0].dataset.price;
+        bikePriceInput.value = price;
 
-            // Update total amount when price changes
-            updateTotalAmount();
-        }
-    }
-
-    // Handle quantity change event to update total amount
-    function handleQuantityChange(event) {
-        // Update total amount when quantity changes
+        // Update total amount when price changes
         updateTotalAmount();
     }
 
-    // Update total amount on input change
-    document.getElementById('bikes_section').addEventListener('input', (event) => {
-        if (event.target.classList.contains('bike-quantity')) {
-            handleQuantityChange(event);
+    // Handle quantity change event to update total amount and validate stock
+    function handleQuantityChange(event) {
+        const quantityInput = event.target;
+        const bikeEntry = quantityInput.closest('.bike_entry');
+        const bikeDropdown = bikeEntry.querySelector('.bike-name');
+        const availableStock = parseInt(bikeDropdown.selectedOptions[0].dataset.stock);
+
+        // Validate stock
+        const quantity = parseInt(quantityInput.value);
+        if (quantity > availableStock) {
+            quantityInput.setCustomValidity('Not enough stock available');
+        } else {
+            quantityInput.setCustomValidity('');
         }
-    });
+
+        // Update total amount when quantity changes
+        updateTotalAmount();
+    }
 
     // Add another bike selection field dynamically
     document.getElementById('add_bike').addEventListener('click', function() {
@@ -170,7 +179,7 @@
                 <select name="bikes[${bikeCount}][bike_id]" class="p-3 border rounded-lg w-full bike-name" required>
                     <option value="">Select a bike</option>
                     @foreach($bikes as $bike)
-                        <option value="{{ $bike->id }}" data-barcode="{{ $bike->barcode }}" data-price="{{ $bike->price }}">{{ $bike->name }}</option>
+                        <option value="{{ $bike->id }}" data-barcode="{{ $bike->barcode }}" data-price="{{ $bike->price }}" data-stock="{{ $bike->stock }}">{{ $bike->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -184,33 +193,58 @@
                 <label for="quantity" class="block text-sm font-semibold text-gray-700">Quantity</label>
                 <input type="number" name="bikes[${bikeCount}][quantity]" class="p-3 border rounded-lg w-full bike-quantity" min="1" value="1" required>
             </div>
+
+            <!-- Delete Button -->
+            <button type="button" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 delete-bike">Delete Bike</button>
         `;
-
-        // Attach event listeners for new bike input
-        const barcodeInput = newBikeEntry.querySelector('.bike-barcode');
-        barcodeInput.addEventListener('input', function (e) {
-            const inputValue = e.target.value;
-            searchAndPopulateBike(inputValue, barcodeInput);
-        });
-
-        const bikeDropdown = newBikeEntry.querySelector('.bike-name');
-        bikeDropdown.addEventListener('change', handleDropdownChange);
-
-        // Append new bike entry to the section
         bikeEntries.appendChild(newBikeEntry);
-    });
 
-    // Add event listener to barcode input fields for live search
-    document.querySelectorAll('.bike-barcode').forEach(barcodeInput => {
-        barcodeInput.addEventListener('input', function (e) {
-            const inputValue = e.target.value;
-            searchAndPopulateBike(inputValue, barcodeInput);
+        // Add event listeners for new elements
+        newBikeEntry.querySelector('.bike-barcode').addEventListener('input', function(event) {
+            searchAndPopulateBike(event.target.value, event.target);
+        });
+        newBikeEntry.querySelector('.bike-name').addEventListener('change', handleDropdownChange);
+        newBikeEntry.querySelector('.bike-quantity').addEventListener('change', handleQuantityChange);
+
+        // Delete button functionality
+        newBikeEntry.querySelector('.delete-bike').addEventListener('click', function() {
+            newBikeEntry.remove();
+            updateTotalAmount();
         });
     });
 
-    // Attach dropdown change event listener to existing dropdowns
-    document.querySelectorAll('.bike-name').forEach(bikeDropdown => {
-        bikeDropdown.addEventListener('change', handleDropdownChange);
+    // Event listeners for the initial bike entries
+    const bikeEntries = document.querySelectorAll('.bike_entry');
+    bikeEntries.forEach((bike, index) => {
+        bike.querySelector('.bike-barcode').addEventListener('input', function(event) {
+            searchAndPopulateBike(event.target.value, event.target);
+        });
+        bike.querySelector('.bike-name').addEventListener('change', handleDropdownChange);
+        bike.querySelector('.bike-quantity').addEventListener('change', handleQuantityChange);
+
+        // Delete button functionality for initial bikes
+        bike.querySelector('.delete-bike').addEventListener('click', function() {
+            bike.remove();
+            updateTotalAmount();
+        });
+    });
+
+    // Form submission validation
+    document.getElementById('sale_form').addEventListener('submit', function(event) {
+        const bikeEntries = document.querySelectorAll('.bike_entry');
+        let invalid = false;
+
+        bikeEntries.forEach((bike) => {
+            const quantityInput = bike.querySelector('.bike-quantity');
+            if (!quantityInput.checkValidity()) {
+                invalid = true;
+            }
+        });
+
+        if (invalid) {
+            event.preventDefault();
+            alert('Please correct the errors before submitting.');
+        }
     });
 </script>
 

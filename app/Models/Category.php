@@ -1,7 +1,5 @@
 <?php
 
-// Category.php (Model)
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,12 +9,11 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'image'];
 
     // Define the relationship with bikes
     public function bikes()
     {
-        return $this->hasMany(Bike::class); // This will fetch all bikes associated with this category
+        return $this->hasMany(Bike::class);
     }
 }
-

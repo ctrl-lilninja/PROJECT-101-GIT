@@ -27,6 +27,7 @@ class SellController extends Controller
             'address' => 'required|string|max:255',
             'bikes' => 'required|array',
             'bikes.*.bike_id' => 'required|exists:bikes,id',
+            'bikes.*.barcode' => 'required|string', // Validate barcode
             'bikes.*.quantity' => 'required|integer|min:1',
         ]);
 
@@ -43,7 +44,7 @@ class SellController extends Controller
                 // Check if there's enough stock for the bike
                 if ($bike->quantity < $bikeData['quantity']) {
                     \DB::rollBack();  // Rollback if stock is insufficient
-                    return back()->with('error', "Not enough stock for bike: {$bike->name}");
+                    return back()->with('error', "Not enough stock for bike: {$bike->name}. Available stock: {$bike->quantity}");
                 }
 
                 $totalAmount += $bike->price * $bikeData['quantity'];
@@ -61,12 +62,14 @@ class SellController extends Controller
             foreach ($request->bikes as $bikeData) {
                 $bike = Bike::find($bikeData['bike_id']);
 
+                // Record the sale of the bike
                 SoldBike::create([
                     'sale_id' => $sale->id,
                     'bike_id' => $bike->id,
                     'quantity' => $bikeData['quantity'],
                 ]);
 
+                // Update stock quantity after sale
                 $bike->quantity -= $bikeData['quantity'];
                 $bike->save();
             }

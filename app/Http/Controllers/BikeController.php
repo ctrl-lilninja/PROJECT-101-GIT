@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Bike;
@@ -10,16 +9,25 @@ class BikeController extends Controller
 {
     public function index(Request $request)
     {
+        // Initialize the query builder for bikes
+        $query = Bike::query();
+
         // Check if category_id is present in the query string
         if ($request->has('category_id')) {
             // Filter bikes by the selected category
-            $bikes = Bike::where('category_id', $request->category_id)->get();
-        } else {
-            // Show all bikes if no category is specified
-            $bikes = Bike::all();
+            $query->where('category_id', $request->category_id);
         }
 
-        // Pass bikes to the view
+        // Check if search term is provided
+        if ($request->has('search')) {
+            // Filter bikes by name
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Execute the query and get the results
+        $bikes = $query->get();
+
+        // Pass bikes and any other necessary data to the view
         return view('bikes.index', compact('bikes'));
     }
 
@@ -29,41 +37,37 @@ class BikeController extends Controller
         return view('bikes.create', compact('categories'));
     }
 
-    // Store method in BikeController
-public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'model' => 'required|string|max:255',
-        'category_id' => 'required|exists:categories,id',
-        'quantity' => 'required|integer',
-        'price' => 'required|numeric',
-        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validation for photo
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'quantity' => 'required|integer',
+            'price' => 'required|numeric',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validation for photo
+        ]);
 
-    // Handle file upload
-   // Handle file upload
-$photoPath = null;
-if ($request->hasFile('photo')) {
-    $photo = $request->file('photo');
-    $photoPath = $photo->store('photos', 'public'); // Store in storage/app/public/photos
-}
+        // Handle file upload
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $photoPath = $photo->store('photos', 'public'); // Store in storage/app/public/photos
+        }
 
-// Create a new bike and store the photo path
-Bike::create([
-    'name' => $request->name,
-    'model' => $request->model,
-    'category_id' => $request->category_id,
-    'quantity' => $request->quantity,
-    'price' => $request->price,
-    'barcode' => $request->barcode,
-    'photo' => $photoPath, // Save the photo path to the database
-]);
+        // Create a new bike and store the photo path
+        Bike::create([
+            'name' => $request->name,
+            'model' => $request->model,
+            'category_id' => $request->category_id,
+            'quantity' => $request->quantity,
+            'price' => $request->price,
+            'barcode' => $request->barcode,
+            'photo' => $photoPath, // Save the photo path to the database
+        ]);
 
-
-    return redirect()->route('bikes.index');
-}
-
+        return redirect()->route('bikes.index');
+    }
 
     public function edit(Bike $bike)
     {
@@ -73,7 +77,6 @@ Bike::create([
 
     public function update(Request $request, Bike $bike)
     {
-        // Validate the form input
         $request->validate([
             'name' => 'required|string|max:255',
             'model' => 'required|string|max:255',
@@ -108,7 +111,6 @@ Bike::create([
     
         return redirect()->route('bikes.index');
     }
-    
 
     public function destroy(Bike $bike)
     {
@@ -116,5 +118,4 @@ Bike::create([
         $bike->delete();
         return redirect()->route('bikes.index');
     }
-    
 }

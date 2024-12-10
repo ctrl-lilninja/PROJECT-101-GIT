@@ -85,7 +85,6 @@
                             </x-slot>
                         </x-dropdown>
                     </div>
-                    
 
                     <!-- Hamburger -->
                     <div class="-me-2 flex items-center sm:hidden">
@@ -117,7 +116,6 @@
                     <x-responsive-nav-link :href="route('sell.index')" :active="request()->routeIs('sell')">
                         {{ __('Sell') }}
                     </x-responsive-nav-link>
-
                 </div>
 
                 <!-- Responsive Settings Options -->
@@ -157,6 +155,30 @@
 
         <!-- Page Content -->
         <main>
+            <!-- Display Success or Error Message -->
+            @if(session('success'))
+                <div class="bg-green-500 text-white p-4 rounded-md mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="bg-red-500 text-white p-4 rounded-md mb-4">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <!-- Display Validation Errors -->
+            @if($errors->any())
+                <div class="bg-red-500 text-white p-4 rounded-md mb-4">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             @yield('content')
         </main>
     </div>

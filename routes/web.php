@@ -1,9 +1,5 @@
-<?php
-
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\BikeController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\SellController;
+<?PHP
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect Root to Login or Dashboard
@@ -12,9 +8,9 @@ Route::get('/', function () {
 });
 
 // Dashboard Route
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // Authenticated Routes Group
 Route::middleware('auth')->group(function () {
