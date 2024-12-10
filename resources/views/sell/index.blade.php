@@ -3,60 +3,73 @@
 @section('content')
 <div class="container mx-auto py-6">
     <div class="bg-white shadow-md rounded-lg p-6">
-        <h1 class="text-2xl font-semibold mb-4">Bike Sales</h1>
+        <h1 class="text-2xl font-semibold mb-6 text-center">Bike Sales</h1>
 
         <!-- Sale Form -->
         <form action="{{ route('sell.store') }}" method="POST">
             @csrf
 
-            <div class="mb-4">
-                <label for="buyer_name" class="block text-sm font-semibold">Buyer Name</label>
-                <input type="text" id="buyer_name" name="buyer_name" class="p-2 border rounded w-full" required>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column: Buyer, Contact, Address -->
+                <div class="space-y-4">
+                    <div class="mb-4">
+                        <label for="buyer_name" class="block text-sm font-semibold text-gray-700">Buyer Name</label>
+                        <input type="text" id="buyer_name" name="buyer_name" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-blue-500" required>
+                    </div>
 
-            <div class="mb-4">
-                <label for="contact" class="block text-sm font-semibold">Contact</label>
-                <input type="text" id="contact" name="contact" class="p-2 border rounded w-full" required>
-            </div>
+                    <div class="mb-4">
+                        <label for="contact" class="block text-sm font-semibold text-gray-700">Contact</label>
+                        <input type="text" id="contact" name="contact" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-blue-500" required>
+                    </div>
 
-            <div class="mb-4">
-                <label for="address" class="block text-sm font-semibold">Address</label>
-                <input type="text" id="address" name="address" class="p-2 border rounded w-full" required>
-            </div>
+                    <div class="mb-4">
+                        <label for="address" class="block text-sm font-semibold text-gray-700">Address</label>
+                        <input type="text" id="address" name="address" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
 
-            <!-- Multiple Bike Selection -->
-            <div id="bikes_section">
-                <!-- Initial bike entry -->
-                <div class="bike_entry" id="bike_0">
-                    <label for="bike_barcode" class="block text-sm font-semibold">Bike Barcode</label>
-                    <input type="text" name="bikes[0][barcode]" class="p-2 border rounded w-full bike-barcode" placeholder="Scan or Enter Barcode" required>
+                <!-- Right Column: Bike Selection -->
+                <div class="space-y-4">
+                    <div id="bikes_section">
+                        <div class="bike_entry" id="bike_0">
+                            <div class="mb-4">
+                                <label for="bike_barcode" class="block text-sm font-semibold text-gray-700">Bike Barcode</label>
+                                <input type="text" name="bikes[0][barcode]" class="p-3 border rounded-lg w-full bike-barcode" placeholder="Scan or Enter Barcode" required>
+                            </div>
 
-                    <label for="bike_name" class="block text-sm font-semibold mt-2">Bike Name</label>
-                    <select name="bikes[0][bike_id]" class="p-2 border rounded w-full bike-name" required>
-                        <option value="">Select a bike</option>
-                        @foreach($bikes as $bike)
-                            <option value="{{ $bike->id }}" data-barcode="{{ $bike->barcode }}" data-price="{{ $bike->price }}">{{ $bike->name }}</option>
-                        @endforeach
-                    </select>
+                            <div class="mb-4">
+                                <label for="bike_name" class="block text-sm font-semibold text-gray-700">Bike Name</label>
+                                <select name="bikes[0][bike_id]" class="p-3 border rounded-lg w-full bike-name" required>
+                                    <option value="">Select a bike</option>
+                                    @foreach($bikes as $bike)
+                                        <option value="{{ $bike->id }}" data-barcode="{{ $bike->barcode }}" data-price="{{ $bike->price }}">{{ $bike->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                    <label for="bike_price" class="block text-sm font-semibold mt-2">Bike Price</label>
-                    <input type="text" name="bikes[0][price]" class="p-2 border rounded w-full bike-price" placeholder="Price" readonly>
+                            <div class="mb-4">
+                                <label for="bike_price" class="block text-sm font-semibold text-gray-700">Bike Price</label>
+                                <input type="text" name="bikes[0][price]" class="p-3 border rounded-lg w-full bike-price" placeholder="Price" readonly>
+                            </div>
 
-                    <label for="quantity" class="block text-sm font-semibold mt-2">Quantity</label>
-                    <input type="number" name="bikes[0][quantity]" class="p-2 border rounded w-full bike-quantity" min="1" value="1" required>
+                            <div class="mb-4">
+                                <label for="quantity" class="block text-sm font-semibold text-gray-700">Quantity</label>
+                                <input type="number" name="bikes[0][quantity]" class="p-3 border rounded-lg w-full bike-quantity" min="1" value="1" required>
+                            </div>
+                        </div>
+                    </div>
 
-                    <br><br>
+                    <button type="button" id="add_bike" class="bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 w-full">Add Another Bike</button>
                 </div>
             </div>
 
-            <button type="button" id="add_bike" class="bg-blue-500 text-white p-2 rounded mt-4">Add Another Bike</button>
-
+            <!-- Total Amount -->
             <div class="mb-4">
-                <label for="total_amount" class="block text-sm font-semibold">Total Amount</label>
-                <input type="number" id="total_amount" name="total_amount" class="p-2 border rounded w-full" readonly>
+                <label for="total_amount" class="block text-sm font-semibold text-gray-700">Total Amount</label>
+                <input type="number" id="total_amount" name="total_amount" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-blue-500" readonly>
             </div>
 
-            <button type="submit" class="bg-green-500 text-white p-2 rounded mt-4">Submit Sale</button>
+            <button type="submit" class="bg-red-600 text-white font-semibold text-lg px-6 py-3 rounded-lg shadow-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 transition duration-300 w-full sm:w-auto">Submit Sale</button>
         </form>
     </div>
 </div>
@@ -147,23 +160,30 @@
 
         // Create fresh set of inputs for new bike entry
         newBikeEntry.innerHTML = `
-            <label for="bike_barcode" class="block text-sm font-semibold">Bike Barcode</label>
-            <input type="text" name="bikes[${bikeCount}][barcode]" class="p-2 border rounded w-full bike-barcode" placeholder="Scan or Enter Barcode" required>
+            <div class="mb-4">
+                <label for="bike_barcode" class="block text-sm font-semibold text-gray-700">Bike Barcode</label>
+                <input type="text" name="bikes[${bikeCount}][barcode]" class="p-3 border rounded-lg w-full bike-barcode" placeholder="Scan or Enter Barcode" required>
+            </div>
 
-            <label for="bike_name" class="block text-sm font-semibold mt-2">Bike Name</label>
-            <select name="bikes[${bikeCount}][bike_id]" class="p-2 border rounded w-full bike-name" required>
-                <option value="">Select a bike</option>
-                @foreach($bikes as $bike)
-                    <option value="{{ $bike->id }}" data-barcode="{{ $bike->barcode }}" data-price="{{ $bike->price }}">{{ $bike->name }}</option>
-                @endforeach
-            </select>
+            <div class="mb-4">
+                <label for="bike_name" class="block text-sm font-semibold text-gray-700">Bike Name</label>
+                <select name="bikes[${bikeCount}][bike_id]" class="p-3 border rounded-lg w-full bike-name" required>
+                    <option value="">Select a bike</option>
+                    @foreach($bikes as $bike)
+                        <option value="{{ $bike->id }}" data-barcode="{{ $bike->barcode }}" data-price="{{ $bike->price }}">{{ $bike->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-            <label for="bike_price" class="block text-sm font-semibold mt-2">Bike Price</label>
-            <input type="text" name="bikes[${bikeCount}][price]" class="p-2 border rounded w-full bike-price" placeholder="Price" readonly>
+            <div class="mb-4">
+                <label for="bike_price" class="block text-sm font-semibold text-gray-700">Bike Price</label>
+                <input type="text" name="bikes[${bikeCount}][price]" class="p-3 border rounded-lg w-full bike-price" placeholder="Price" readonly>
+            </div>
 
-            <label for="quantity" class="block text-sm font-semibold mt-2">Quantity</label>
-            <input type="number" name="bikes[${bikeCount}][quantity]" class="p-2 border rounded w-full bike-quantity" min="1" value="1" required>
-            <br><br>
+            <div class="mb-4">
+                <label for="quantity" class="block text-sm font-semibold text-gray-700">Quantity</label>
+                <input type="number" name="bikes[${bikeCount}][quantity]" class="p-3 border rounded-lg w-full bike-quantity" min="1" value="1" required>
+            </div>
         `;
 
         // Attach event listeners for new bike input

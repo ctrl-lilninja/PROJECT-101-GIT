@@ -3,11 +3,12 @@
 @section('content')
     <div class="max-w-6xl mx-auto py-8">
         <!-- Add Category Button -->
+        <h2 class="font-semibold text-3xl text-gray-800 mb-6">{{ __('Categories') }}</h2>
         <div class="mb-6">
-            <a href="{{ route('categories.create') }}" class="bg-green-500 text-white px-6 py-3 rounded-md inline-block">Add Category</a>
+            <a href="{{ route('categories.create') }}" class="bg-red-600 text-white px-6 py-3 rounded-md shadow-lg hover:bg-red-700 transition duration-200">Add Category</a>
         </div>
 
-        <h2 class="font-semibold text-3xl text-gray-800 mb-6">{{ __('Categories') }}</h2>
+        
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($categories as $category)

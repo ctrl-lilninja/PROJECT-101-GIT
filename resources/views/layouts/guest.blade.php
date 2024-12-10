@@ -16,12 +16,16 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-900 antialiased">
     <div class="min-h-screen flex flex-col justify-center items-center pt-6 sm:pt-0">
-        <div class="w-full sm:max-w-md px-6 py-6 bg-white shadow-lg rounded-lg dark:bg-gray-800">
+        <div class="w-full sm:max-w-md px-6 py-6 bg-white shadow-lg rounded-lg bg-gray-800">
+            
+            <div class="flex justify-center">
+                <img src="{{ asset('images/bike.png') }}" alt="Bikeru" style="width: 100px; height: auto;">
+            </div>
             
             <!-- Header (app name or logo) -->
             <div class="mb-6 text-center">
-                <h1 class="text-3xl font-semibold text-indigo-600">Welcome Back!</h1>
-                <p class="text-sm text-gray-500 mt-2">Login to your account to continue</p>
+                <h1 class="text-3xl font-semibold text-red-600">BIKERU</h1>
+                <p class="text-sm text-gray-500 mt-2">Bike Inventory and Point of Sale with Barcode Integration</p>
             </div>
 
             <!-- The content slot (for login or registration form) -->
@@ -32,14 +36,14 @@
                 @if(Route::is('login'))
                     <p class="text-sm text-gray-600">
                         Don't have an account? 
-                        <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:text-indigo-900">
+                        <a href="{{ route('register') }}" class="font-medium text-red-600 hover:text-red-900">
                             Register here
                         </a>
                     </p>
                 @elseif(Route::is('register'))
                     <p class="text-sm text-gray-600">
                         Already have an account? 
-                        <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-900">
+                        <a href="{{ route('login') }}" class="font-medium text-red-600 hover:text-red-900">
                             Login here
                         </a>
                     </p>
